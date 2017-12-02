@@ -28,14 +28,12 @@ void addPlat(){
 }
 
 void drawTitle() {
-    int screen = 0;
-    background(255,255,255);
+    background(255,0,255);
     textSize(100);
-    text("GAME NAME", 400, 400);
+    text("GAME NAME", 200, 400);
 }
 
 void drawInstructions() {
-    int screen = 1; 
     background(255,255,255);
     textSize(40);
     text("INSTRUCTIONS",400,100);
@@ -53,18 +51,21 @@ void drawGame(){
     p1.vy -=11;
     p1.canJump = false;
   }
-  p1.move()
+  p1.move();
   p1.vy += 0.4;
   displayAllPlats(platforms);
   for (int i= 0; i<platforms.size(); i++){
       Platform p = platforms.get(i);
-          if (p.doesCollide(p1)){
-           collidLogic (p1,p);
-          }
+      if (p.doesCollide(p1)){
+      collideLogic (p1,p);
+      }
   }
   p1.display();
   if (p1.y >800){
-      SCREEN = END;
+      DEATH = true;
+  }
+  if (DEATH){
+      drawEnd();
   }
 }   
 void drawEnd () {
@@ -72,12 +73,16 @@ void drawEnd () {
     fill(0,255,0);
     textSize(40);
     text("GAME OVER", width/2, height/2-50);
-    text("PRESS R TO RESTART", wideth/2, height/2 + 50);
+    text("PRESS R TO RESTART", width/2, height/2 + 50);
 }
 
 void keyPressed(){
-    if (keyCode == ' ' && SCREEN == INSTRUCTIONS)
-    if 
+    if (keyCode == ' ' && SCREEN == TITLE){
+        SCREEN = INSTRUCTIONS;
+    }
+    else if (keyCode == ' ' && SCREEN == INSTRUCTIONS){
+        SCREEN = GAME;
+    }
     if (keyCode == LEFT){
       p1.pressA = true;
     }
@@ -86,9 +91,8 @@ void keyPressed(){
     }
     if (keyCode == UP){
       p1.pressW = true;
-    } if (key == "r") {
-        reset();
-        drawGAME();
+    } if (key == 'r') {
+        drawGame();
     }
  }
 void keyReleased(){
@@ -106,7 +110,7 @@ void keyReleased(){
  }
  void displayAllPlats(ArrayList<Platform> list){
      for (int i=0; i<list.size(); i++){
-         Platform tmp = list,get(i);
+         Platform tmp = list.get(i);
          fill(tmp.c);
          rect(tmp.x, tmp.y, tmp.w, tmp.h);
      }
@@ -140,9 +144,9 @@ class Player {//player class
   float vx = 0;
   float vy = 0;
   color c = color(0, 0, 255);
-  boolean pressL = false;
-  boolean pressR = false;
-  boolean pressU = false;
+  boolean pressA = false;
+  boolean pressD = false;
+  boolean pressW = false;
   boolean canJump = false;
   Player(int x, int y, int w, int h) {
     this.x = x;
@@ -161,7 +165,7 @@ class Player {//player class
     y+=vy;
   }
 }
-class Platform (){
+class Platform{
   int x,y,w,h;
   color c = color (0,255,0);
   Platform (int x, int y, int w, int h){
@@ -170,7 +174,7 @@ class Platform (){
     this.w = w;
     this.h = h;
   }
-  boolean doesCollide(player p){
+  boolean doesCollide(Player p){
     float dx = abs(x - p.x);
     float dy = abs(y - p.y);
     return dx < (p.w + w)/2 && dy < (p.h +h/2);
